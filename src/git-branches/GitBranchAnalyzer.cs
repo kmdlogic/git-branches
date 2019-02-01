@@ -6,7 +6,7 @@ using LibGit2Sharp;
 
 namespace GitBranches
 {
-    class GitBranchAnalyzer
+    public class GitBranchAnalyzer
     {
         private readonly Options options;
 
@@ -22,19 +22,28 @@ namespace GitBranches
         private class BranchCommitter
         {
             public string Name { get; set; }
+
             public int Count { get; set; }
+
             public DateTimeOffset FirstCommit { get; set; }
+
             public DateTimeOffset LastCommit { get; set; }
+
             public List<string> MessageShorts { get; set; }
         }
 
         private class BranchDetails
         {
             public string BranchName { get; set; }
+
             public int Commits { get; set; }
+
             public List<BranchCommitter> Committers { get; set; }
+
             public DateTimeOffset FirstCommit { get; set; }
+
             public DateTimeOffset LastCommit { get; set; }
+
             public string LastSha { get; set; }
         }
 
@@ -47,14 +56,17 @@ namespace GitBranches
             using (var repo = new Repository(repoPath.FullName))
             {
                 var mainBranch = repo.Branches[$"refs/remotes/{options.MainBranch}"];
-                if (mainBranch == null) throw new Exception($"Unknown main branch {options.MainBranch}");
+                if (mainBranch == null)
+                {
+                    throw new Exception($"Unknown main branch {options.MainBranch}");
+                }
 
                 var mainCommits = new HashSet<string>(mainBranch.Commits.Select(x => x.Sha));
 
                 foreach (var branch in repo.Branches.Where(x => x.IsRemote && x != mainBranch))
                 {
                     var details = new BranchDetails { BranchName = branch.FriendlyName };
-                    var committers = new Dictionary<string, BranchCommitter>(StringComparer.OrdinalIgnoreCase);
+                    var committers = new Dictionary<string, BranchCommitter>(StringComparer.CurrentCultureIgnoreCase);
                     Commit mainCommit = null;
 
                     branches.Add(details);
@@ -62,7 +74,6 @@ namespace GitBranches
                     foreach (var commit in branch.Commits)
                     {
                         var committerName = commit.Committer.ToString();
-                        BranchCommitter committer;
 
                         if (mainCommits.Contains(commit.Sha))
                         {
@@ -70,6 +81,7 @@ namespace GitBranches
                             {
                                 mainCommit = commit;
                             }
+
                             continue;
                         }
 
@@ -87,6 +99,7 @@ namespace GitBranches
                             {
                                 details.FirstCommit = commit.Committer.When;
                             }
+
                             if (details.LastCommit < commit.Committer.When)
                             {
                                 details.LastCommit = commit.Committer.When;
@@ -94,7 +107,7 @@ namespace GitBranches
                             }
                         }
 
-                        if (committers.TryGetValue(committerName, out committer))
+                        if (committers.TryGetValue(committerName, out var committer))
                         {
                             committer.Count++;
                             committer.MessageShorts.Add(commit.MessageShort);
@@ -102,13 +115,14 @@ namespace GitBranches
                             {
                                 committer.FirstCommit = commit.Committer.When;
                             }
+
                             if (committer.LastCommit < commit.Committer.When)
                             {
                                 committer.LastCommit = commit.Committer.When;
                             }
                         }
                         else
-                        { 
+                        {
                             committer = new BranchCommitter
                             {
                                 Name = committerName,
@@ -119,13 +133,13 @@ namespace GitBranches
                             };
 
                             committers.Add(committerName, committer);
-                        }                        
+                        }
                     }
 
                     if (committers.Count == 0 && mainCommit != null)
                     {
                         details.FirstCommit = mainCommit.Committer.When;
-                        details.LastCommit = mainCommit.Committer.When; 
+                        details.LastCommit = mainCommit.Committer.When;
                         details.LastSha = mainCommit.Sha;
 
                         var committerName = mainCommit.Committer.ToString();
@@ -147,12 +161,18 @@ namespace GitBranches
                     details.Committers.Sort((x, y) =>
                     {
                         var r = y.Count - x.Count;
-                        if (r != 0) return r;
+                        if (r != 0)
+                        {
+                            return r;
+                        }
 
                         r = y.LastCommit.CompareTo(x.LastCommit);
-                        if (r != 0) return r;
+                        if (r != 0)
+                        {
+                            return r;
+                        }
 
-                        return string.Compare(x.Name, y.Name, true);
+                        return string.Compare(x.Name, y.Name, StringComparison.CurrentCultureIgnoreCase);
                     });
                 }
             }
@@ -160,23 +180,24 @@ namespace GitBranches
             if (!string.IsNullOrEmpty(options.Branch))
             {
                 branches = branches.Where(x =>
-                    x.BranchName.Contains(options.Branch, StringComparison.OrdinalIgnoreCase)
-                ).ToList();
+                    x.BranchName.Contains(options.Branch, StringComparison.CurrentCultureIgnoreCase)).ToList();
             }
 
             if (!string.IsNullOrEmpty(options.Contributor))
             {
-                branches = branches.Where(x => 
-                    x.Committers.Any(y => y.Name.Contains(options.Contributor, StringComparison.OrdinalIgnoreCase))
-                ).ToList();
+                branches = branches.Where(x =>
+                    x.Committers.Any(y => y.Name.Contains(options.Contributor, StringComparison.CurrentCultureIgnoreCase))).ToList();
             }
 
             branches.Sort((x, y) =>
             {
                 var r = x.LastCommit.CompareTo(y.LastCommit);
-                if (r != 0) return r;
+                if (r != 0)
+                {
+                    return r;
+                }
 
-                return string.Compare(x.BranchName, y.BranchName, true);
+                return string.Compare(x.BranchName, y.BranchName, StringComparison.CurrentCultureIgnoreCase);
             });
 
             if (options.Verbosity == Verbosity.CSV)
@@ -208,6 +229,7 @@ namespace GitBranches
                         Console.WriteLine($" Contributors: {GetContributors(branch)}");
                         Console.WriteLine($" Unmerged Commits: {branch.Commits:N0}");
                     }
+
                     switch (branch.Commits)
                     {
                         case 0:
@@ -241,7 +263,7 @@ namespace GitBranches
                             }
                             else
                             {
-                                Console.WriteLine($"{details} [{ committer.Count:N0} commit(s)]");
+                                Console.WriteLine($"{details} [{committer.Count:N0} commit(s)]");
                             }
                         }
                     }

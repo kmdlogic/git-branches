@@ -1,11 +1,11 @@
-﻿using CommandLine;
-using System;
-
-namespace GitBranches
+﻿namespace GitBranches
 {
-    partial class Program
+    using System;
+    using CommandLine;
+
+    public static class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             try
             {

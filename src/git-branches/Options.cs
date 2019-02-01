@@ -2,12 +2,34 @@
 
 namespace GitBranches
 {
+    /// <summary>
+    /// The level of verbosity in the output
+    /// </summary>
     public enum Verbosity
     {
+        /// <summary>
+        /// Summarise in Comma Separated Value format
+        /// </summary>
         CSV,
+
+        /// <summary>
+        /// Compact format
+        /// </summary>
         Compact,
+
+        /// <summary>
+        /// Normal format
+        /// </summary>
         Normal,
+
+        /// <summary>
+        /// Include the contributors to the branch
+        /// </summary>
         Contributors,
+
+        /// <summary>
+        /// Include the commit log of the branch
+        /// </summary>
         Logs
     }
 
