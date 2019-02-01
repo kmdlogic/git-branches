@@ -44,10 +44,10 @@ namespace GitBranches
         [Option('b', "branch", Required = false, HelpText = "Only include branches which contain this (e.g. -b 123456)")]
         public string Branch { get; set; }
 
-        [Option('c', "contributor", Required = false, HelpText = "Only include branches which contain this contributor (e.g. -c udv)")]
+        [Option('c', "contributor", Required = false, HelpText = "Only include branches which contain this contributor (e.g. -c billy)")]
         public string Contributor { get; set; }
 
-        [Option('v', "verbosity", Required = false, Default = Verbosity.Normal, HelpText = "Level of details in the output (Compact, Normal, Contributors, Logs)")]
+        [Option('v', "verbosity", Required = false, Default = Verbosity.Normal, HelpText = "Level of details in the output (CSV, Compact, Normal, Contributors, Logs)")]
         public Verbosity Verbosity { get; set; }
     }
 }
